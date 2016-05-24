@@ -6,15 +6,29 @@ grammar p3b;
 
 prog: (func|var|macro|coment|def)*;
 
-/*Funciones:*/
-func: PAL ' ' PAL ' '? '('PAL ')' '{' '\n';
-esp: '/t'
-	|' '
-	|'\n';
+/*cosas que valen para todo el programa:*/
 PAL: [a-zA-Z]+;
 
-/*Variables*/
-/*Macros*/
-/*Comentarios*/
-/*Definiciones de funciones*/
 
+/*Funciones:*/
+func: PAL ' ' PAL ' '? '('PAL ')' '{'cont'}' '\n';
+cont: (llamada|otro)*;
+llamada: PAL ' '? '('PAL')'' '* ';\n';
+otro: ~('\n')* '\n';
+
+/*Variables*/
+/*hay que mejorar esto*/
+var: PAL ' ' PAL ';\n';
+
+
+/*Macros*/
+macro: '#' PAL PAL '\n';
+
+
+/*Comentarios*/
+/*meter formula de comentarios*/
+coment: '/*' PAL '*/';
+
+
+/*Definiciones de funciones*/
+def: PAL ' ' PAL ' '* '(' PAL ')'';\n';
