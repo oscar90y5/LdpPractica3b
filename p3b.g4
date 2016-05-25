@@ -1,18 +1,18 @@
 grammar p3b;
 
 
-/ *En un programa C hay funciones, variables, macros, comentarios y espacios en blanco */
-prog  : ( funcionDec | var | macro | coment | ws)*
+/* En un programa C hay funciones, variables, macros, comentarios y espacios en blanco */
+prog  : ( funcionDec | var | macro | coment | WS)*
       ;
 
 
-coment            : bcoment
-                  | lcoment
+coment            : BCOMENT
+                  | LCOMENT
                   ;
-expresion         : id ['<''>''==''!=''<=''>='] id
-                  | id
+expresion         : ID OPERADOREXPR ID
+                  | ID
                   ;
-asignacion        : id operadorAsig id ';'
+asignacion        : ID OPERADORASIG ID ';'
                   ;
 
 
@@ -22,15 +22,15 @@ asignacion        : id operadorAsig id ';'
 funcionDec        : funcionProto ';'
                   | funcionProto bloque
                   ;
-funcionProto      : ('extern'| 'static')? ' ' tipo id '(' params ')'
+funcionProto      : ('extern'| 'static')? ' ' TIPO ID '(' params ')'
                   ;
-funcionCall       : id '(' args ')' ';'
+funcionCall       : ID '(' args ')' ';'
                   ;
 
-params            : tipo id
-                  | tipo id (',' params)*
+params            : TIPO ID
+                  | TIPO ID (',' params)*
                   ;
-args              : idList
+args              : IDLIST
                   ;
 
 /* Declaracion de variables */
@@ -38,13 +38,13 @@ args              : idList
 var               : varDec var ';'
                   | varDef var ';'
                   ;
-varDec            : tipo id (',' tipo id)*
-                  | tipo idList
+varDec            : TIPO ID (',' TIPO ID)*
+                  | TIPO IDLIST
                   ;
-varDef            : tipo id initVar (',' tipo id initVar)*
-                  | tipo id initVar (',' id initVar)*
+varDef            : TIPO ID initVar (',' TIPO ID initVar)*
+                  | TIPO ID initVar (',' ID initVar)*
                   ;
-initVar           : operadorAsig id
+initVar           : OPERADORASIG ID
                   ;
 
 
@@ -59,7 +59,7 @@ bloqueItem        : sentencia
 sentencia         : var
                   | asignacion
                   | funcionCall
-                  | setenciaSalto
+                  | sentenciaSalto
                   ;
 
 sentenciaSelector : 'if' '(' expresion ')' bloque
@@ -72,7 +72,7 @@ sentenciaIterador : 'while' '(' expresion ')' bloque
                   | 'for' '(' expresion? ';' expresion? ';' expresion? ')' bloque
                   ;
 
-sentenciaSalto    : 'goto' id ';'
+sentenciaSalto    : 'goto' ID ';'
                   | 'continue' ';'
                   | 'break' ';'
                   | 'return' expresion? ';'
@@ -80,7 +80,7 @@ sentenciaSalto    : 'goto' id ';'
 
 /* Macros */
 
-macro   : '#' id ' ' id
+macro   : '#' ID ' ' ID
         ;
 
 
@@ -90,27 +90,31 @@ macro   : '#' id ' ' id
 ******************************************************************************************/
 
 PAL                   : [a-zA-Z]+;
-let                   :	[a-zA-Z_];
-dig                   :	[0-9];
-digs                  :	dig+;
-sign                  :	'+' | '-';
-id                    :	let ( let | dig )*;
-idList                :	id
-                      |	idList ',' id
+LET                   :	[a-zA-Z_];
+DIG                   :	[0-9];
+DIGS                  :	DIG+;
+SIGN                  :	'+' | '-';
+ID                    :	LET ( LET | DIG )*;
+IDLIST                :	ID
+                      |	ID ',' IDLIST
                       ;
-ws                    :	[ \t\n\r]+ -> skip;
-bcoment               :	'/*' .*? '*/' -> skip;
-lcoment               :	'//' ~[\r\n]* -> skip;
+WS                    :	[ \t\n\r]+ -> skip;
+BCOMENT               :	'/*' .*? '*/' -> skip;
+LCOMENT               :	'//' ~[\r\n]* -> skip;
 
-operadorAsig          : '=' | '*='
+OPERADORASIG          : '=' | '*='
                       | '/='| '%='
                       | '+='| '-='
-                      | '<<='| '>>=''
+                      | '<<='| '>>='
                       | '&=' | '^='
                       | '|='
                       ;
+OPERADOREXPR          : '<' | '>'
+                      | '==' | '!='
+                      | '<=' | '>='
+                      ;
 
-tipo                  : 'void'
+TIPO                  : 'void'
                 			| 'char'
                 			| 'short'
                 			| 'int'
@@ -121,5 +125,5 @@ tipo                  : 'void'
                 			| 'unsigned'
                 			| '_Bool'
                 			| '_Complex'
-                			| id
+                			| ID
                 			;
