@@ -2,51 +2,45 @@ grammar p3b;
 
 
 /* En un programa C hay funciones, variables, macros, comentarios y espacios en blanco */
-prog  : ( ' ' | coment | WS | macro | var | funcionDec)*
+prog  : (macro | var | funcionDec)*
       ;
 
-
-coment            : BCOMENT
-                  | LCOMENT
-                  ;
 expresion         : ID OPERADOREXPR ID
                   | ID
                   ;
-asignacion        : ID OPERADORASIG ID ';'
+asignacion        : ID OPERADORASIG DIGS ';'
                   ;
 
+/* Macros */
+macro   : '#' ID ID
+        ;
+
+
+/* Declaracion de variables */
+
+var               : TIPO ID initVar? (',' ID initVar?)* ';'
+                  ;
+initVar           : OPERADORASIG DIGS
+                  ;
 
 /* Funciones */
 /* func: PAL ' '+ tres=PAL ' '* '('params')' ' '* bloque  {System.out.println("funcion: "+$tres.text);} ; */
 
 funcionDec        : funcionProto ';'
-                  | funcionProto bloque
+                  | funcionDef
                   ;
-funcionProto      : ('extern'| 'static')? ' ' TIPO ID '(' params ')'
+funcionDef        : funcionProto bloque
                   ;
-funcionCall       : ID '(' args ')' ';'
-                  ;
-
-params            : TIPO ' ' ID
-                  | TIPO ' ' ID (',' params)*
-                  ;
-args              : IDLIST
+funcionProto      : ('extern'| 'static')? TIPO? ID '(' params? ')' ';'
                   ;
 
-/* Declaracion de variables */
-
-var               : varDec (',' (varDec | varDef))* ';'
-                  | varDef (',' (varDec | varDef))* ';'
+params            : TIPO ID (',' TIPO ID)*
                   ;
-varDec            : TIPO ' ' ID (',' TIPO ID)*
-                  | TIPO ' ' IDLIST
-                  ;
-varDef            : TIPO ' ' ID initVar (',' TIPO ID initVar)*
-                  | TIPO ' ' ID initVar (',' ID initVar)*
-                  ;
-initVar           : OPERADORASIG ID
+args              : ID (',' ID)*
                   ;
 
+funcionCall       : ID '(' args? ')'
+                  ;
 
 /* Codigo variado */
 bloque            : '{' bloqueItem* '}'
@@ -72,15 +66,12 @@ sentenciaIterador : 'while' '(' expresion ')' bloque
                   | 'for' '(' expresion? ';' expresion? ';' expresion? ')' bloque
                   ;
 
-sentenciaSalto    : 'goto' ' ' ID ';'
+sentenciaSalto    : 'goto' ID ';'
                   | 'continue' ';'
                   | 'break' ';'
-                  | 'return' ' ' expresion? ';'
+                  | 'return' expresion? ';'
                   ;
 
-/* Macros */
-macro   : '#' ID ' ' ID
-        ;
 
 
 
@@ -88,10 +79,10 @@ macro   : '#' ID ' ' ID
 *                                        Lexico                                           *
 ******************************************************************************************/
 
-TIPO			: 'void'
-			| 'char'
-       			| 'short'
-     			| 'int'
+TIPO			        : 'void'
+			            | 'char'
+       			      | 'short'
+     			        | 'int'
                 	| 'long'
                 	| 'float'
                 	| 'double'
@@ -99,18 +90,14 @@ TIPO			: 'void'
                 	| 'unsigned'
                 	| '_Bool'
                 	| '_Complex'
-			| ID               	
-			;
-
+			            ;
+ID                    :	[a-zA-Z_] ( [a-zA-Z_] | [0-9] )*;
+DIGS                  :	[0-9]+;
 LET                   :	[a-zA-Z_];
 DIG                   :	[0-9];
-DIGS                  :	DIG+;
 SIGN                  :	'+' | '-';
-ID                    :	LET ( LET | DIG )*;
-IDLIST                :	ID
-                      |	ID ',' IDLIST
-                      ;
-WS                    :	[ \t \n \r]+ -> skip;
+
+WS                    :	[ \t\n\r]+ -> skip;
 BCOMENT               :	'/*' .*? '*/' -> skip;
 LCOMENT               :	'//' ~[\r \n]* -> skip;
 
