@@ -2,7 +2,7 @@ grammar p3b;
 
 
 /* En un programa C hay funciones, variables, macros, comentarios y espacios en blanco */
-prog  : ( funcionDec | var | macro | coment | WS)*
+prog  : ( ' ' | coment | WS | macro | var | funcionDec)*
       ;
 
 
@@ -27,22 +27,22 @@ funcionProto      : ('extern'| 'static')? ' ' TIPO ID '(' params ')'
 funcionCall       : ID '(' args ')' ';'
                   ;
 
-params            : TIPO ID
-                  | TIPO ID (',' params)*
+params            : TIPO ' ' ID
+                  | TIPO ' ' ID (',' params)*
                   ;
 args              : IDLIST
                   ;
 
 /* Declaracion de variables */
 
-var               : varDec var ';'
-                  | varDef var ';'
+var               : varDec (',' (varDec | varDef))* ';'
+                  | varDef (',' (varDec | varDef))* ';'
                   ;
-varDec            : TIPO ID (',' TIPO ID)*
-                  | TIPO IDLIST
+varDec            : TIPO ' ' ID (',' TIPO ID)*
+                  | TIPO ' ' IDLIST
                   ;
-varDef            : TIPO ID initVar (',' TIPO ID initVar)*
-                  | TIPO ID initVar (',' ID initVar)*
+varDef            : TIPO ' ' ID initVar (',' TIPO ID initVar)*
+                  | TIPO ' ' ID initVar (',' ID initVar)*
                   ;
 initVar           : OPERADORASIG ID
                   ;
@@ -72,14 +72,13 @@ sentenciaIterador : 'while' '(' expresion ')' bloque
                   | 'for' '(' expresion? ';' expresion? ';' expresion? ')' bloque
                   ;
 
-sentenciaSalto    : 'goto' ID ';'
+sentenciaSalto    : 'goto' ' ' ID ';'
                   | 'continue' ';'
                   | 'break' ';'
-                  | 'return' expresion? ';'
+                  | 'return' ' ' expresion? ';'
                   ;
 
 /* Macros */
-
 macro   : '#' ID ' ' ID
         ;
 
@@ -89,7 +88,20 @@ macro   : '#' ID ' ' ID
 *                                        Lexico                                           *
 ******************************************************************************************/
 
-PAL                   : [a-zA-Z]+;
+TIPO			: 'void'
+			| 'char'
+       			| 'short'
+     			| 'int'
+                	| 'long'
+                	| 'float'
+                	| 'double'
+                	| 'signed'
+                	| 'unsigned'
+                	| '_Bool'
+                	| '_Complex'
+			| ID               	
+			;
+
 LET                   :	[a-zA-Z_];
 DIG                   :	[0-9];
 DIGS                  :	DIG+;
@@ -98,9 +110,9 @@ ID                    :	LET ( LET | DIG )*;
 IDLIST                :	ID
                       |	ID ',' IDLIST
                       ;
-WS                    :	[ \t\n\r]+ -> skip;
+WS                    :	[ \t \n \r]+ -> skip;
 BCOMENT               :	'/*' .*? '*/' -> skip;
-LCOMENT               :	'//' ~[\r\n]* -> skip;
+LCOMENT               :	'//' ~[\r \n]* -> skip;
 
 OPERADORASIG          : '=' | '*='
                       | '/='| '%='
@@ -113,17 +125,3 @@ OPERADOREXPR          : '<' | '>'
                       | '==' | '!='
                       | '<=' | '>='
                       ;
-
-TIPO                  : 'void'
-                			| 'char'
-                			| 'short'
-                			| 'int'
-                			| 'long'
-                			| 'float'
-                			| 'double'
-                			| 'signed'
-                			| 'unsigned'
-                			| '_Bool'
-                			| '_Complex'
-                			| ID
-                			;
