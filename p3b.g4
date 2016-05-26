@@ -7,36 +7,72 @@ grammar p3b;
 
 prog: (func|var|macro|coment|def|'\n')*;
 
-/*cosas que valen para todo el programa:*/
-PAL: [a-zA-Z]+;
-EXP: PAL ['<''>''==''!=''<=''>='] PAL ;
 
 /*Funciones:*/
-func: PAL ' '+ tres=PAL ' '* '('PAL ')' ' '* '{'cont'}'   {System.out.println("funcion: "+$tres.text);} ;
+
+func: TIPO ' '+ ID ' '* '(' ID ')' ' '* '{'cont'}'  ;
 
 cont: (llamada|var|control|asig|ret|'\n')*;
-llamada: PAL ' '? '(' PAL ')' ' '* ';' ;
-ret: 'return' PAL ';' ;
-asig: PAL '=' PAL ';' ;
-control: PAL ' '* '('EXP ')' ' '* '{'cont'}';
+llamada: ID ' '? '(' ID ')' ' '* ';' ;
+ret: 'return' ID ';' ;
+asig: ID '=' ID ';' ;
+control: ID ' '* '('OPERADOREXPR ')' ' '* '{'cont'}';
 
 /*Variables*/
 /*hay que mejorar esto*/
-var: PAL ' ' PAL (' '* '=' ' '* PAL)? (' '* ',' PAL (' '* '=' ' '* PAL)? )* ' '* ';';
+var: TIPO ' ' ID (' '* '=' ' '* ID)? (' '* ',' ID (' '* '=' ' '* ID)? )* ' '* ';';
 
 
 /*Macros*/
-macro: '#' PAL PAL ;
+macro: '#' ID ID ;
 
 
 /*Comentarios*/
 /*meter formula de comentarios*/
-coment: '/*' PAL '*/';
+coment: '/*' ID '*/';
 
 
 /*Definiciones de funciones*/
-def: PAL ' ' PAL ' '* '(' PAL ')'';';
+def: TIPO ' ' ID ' '* '(' ID ')'';';
 
 /*****************************************************************************************************
- *                            LEXICO                                                                 *
+ *                                           LEXICO                                                  *
  *****************************************************************************************************/
+
+TIPO                  : ('void')
+                			| 'char'
+                			| 'short'
+                			| 'int'
+                			| 'long'
+                			| 'float'
+                			| 'double'
+                			| 'signed'
+                			| 'unsigned'
+                			| '_Bool'
+                			| '_Complex'
+                			| 'struct ' ID
+                			;
+LET                   :	[a-zA-Z_];
+DIG                   :	[0-9];
+DIGS                  :	DIG+;
+SIGN                  :	'+' | '-';
+ID                    :	LET ( LET | DIG )*;
+IDLIST                :	ID
+                      |	ID ',' IDLIST
+                      ;
+WS                    :	[ \t\n\r]+ -> skip;
+BCOMENT               :	'/*' .*? '*/' -> skip;
+LCOMENT               :	'//' ~[\r\n]* -> skip;
+
+OPERADORASIG          : '=' | '*='
+                      | '/='| '%='
+                      | '+='| '-='
+                      | '<<='| '>>='
+                      | '&=' | '^='
+                      | '|='
+                      ;
+OPERADOREXPR          : '<' | '>'
+                      | '==' | '!='
+                      | '<=' | '>='
+                      ;
+
