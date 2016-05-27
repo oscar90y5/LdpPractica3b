@@ -1,14 +1,6 @@
 Cositas que se nos vayan ocurriendo
 
 
-BIBLIOGRAFIAS:
-
-Documentacion oficial antlr4: Grammar Structure, Parser Rules, Actions and Attributes
-https://github.com/antlr/antlr4/blob/master/doc/index.md
-
-Gramatica completa de C:
-https://github.com/antlr/grammars-v4/blob/master/c/C.g4
-
 
 COSAS QUE FALTAN:
 
@@ -29,3 +21,13 @@ Del programa:
 De otras cosas:
   -Como solo tenemos un fichero que ejecutamos con el GRUN, podriamos hacer un batch en linux( que es una chorrada) para que haga las 3 operaciones del tiron y quede mas guapo. (chorradilla)
   -La memoria: hay que explicar como lo hacemos y tal.
+
+--------------------------------------------------------------------------------------------------------------------------------------
+BIBLIOGRAFIAS:
+
+Documentacion oficial antlr4: Grammar Structure, Parser Rules, Actions and Attributes
+https://github.com/antlr/antlr4/blob/master/doc/index.md
+
+Gramatica completa de C:
+https://github.com/antlr/grammars-v4/blob/master/c/C.g4
+
