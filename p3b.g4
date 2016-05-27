@@ -5,60 +5,12 @@ grammar p3b;
 prog  : (macro | var | funcionDec)*
       ;
 
-expresion         : ID OPERADOREXPR ID
-                  | ID
-                  ;
-asignacion        : ID OPERADORASIG DIGS ';'
-                  ;
 
-/* Macros */
-macro   : '#' ID ID
-        ;
-
-
-/* Declaracion de variables */
-
-var               : TIPO ID initVar? (',' ID initVar?)* ';'
-                  ;
-initVar           : OPERADORASIG DIGS
-                  ;
-
-/* Funciones */
-/* func: PAL ' '+ tres=PAL ' '* '('params')' ' '* bloque  {System.out.println("funcion: "+$tres.text);} ; */
-
-funcionDec        : funcionProto ';'
-                  | funcionDef
-                  ;
-funcionDef        : funcionProto bloque
-                  ;
-funcionProto      : ('extern'| 'static')? TIPO? ID '(' params? ')' ';'
-                  ;
-
-params            : TIPO ID (',' TIPO ID)*
-                  ;
-args              : ID (',' ID)*
-                  ;
-
-funcionCall       : ID '(' args? ')'
-                  ;
 
 /* Codigo variado */
-bloque            : '{' bloqueItem* '}'
-                  ;
 
-bloqueItem        : sentencia
-                  | sentenciaSelector
-                  | sentenciaIterador
-                  ;
-sentencia         : var
-                  | asignacion
-                  | funcionCall
-                  | sentenciaSalto
-                  ;
-
-sentenciaSelector : 'if' '(' expresion ')' bloque
-                  | 'if' '(' expresion ')' bloque 'else' bloque
-                  | 'if' '(' expresion ')' bloque 'else' sentenciaSelector
+sentenciaSelector : 'if' '(' expresion ')' (bloque | bloqueItem)
+                  | 'if' '(' expresion ')' (bloque | bloqueItem) 'else' (bloque | bloqueItem)
                   | 'switch' '(' expresion ')' bloque
                   ;
 sentenciaIterador : 'while' '(' expresion ')' bloque
@@ -72,6 +24,57 @@ sentenciaSalto    : 'goto' ID ';'
                   | 'return' expresion? ';'
                   ;
 
+sentencia         : var
+                  | asignacion
+                  | funcionCall
+                  | sentenciaSalto
+                  ;
+
+
+
+/* Declaracion de variables */
+
+var               : TIPO ID initVar? (',' ID initVar?)* ';'
+                  ;
+initVar           : OPERADORASIG DIGS
+                  ;
+
+/* Funciones */
+/* func: PAL ' '+ tres=PAL ' '* '('params')' ' '* bloque  {System.out.println("funcion: "+$tres.text);} ; */
+
+funcionDec        : ('extern'| 'static')? TIPO? ID '(' params? ')' (bloque | ';')
+                  ;
+
+params            : TIPO ID (',' TIPO ID)*
+                  ;
+args              : ID (',' ID)*
+                  ;
+
+funcionCall       : ID '(' args? ')' ';'?
+                  ;
+
+
+/* otros */
+expresion         : ID OPERADOREXPR ID
+                  | ID
+                  ;
+asignacion        : ID OPERADORASIG DIGS ';'
+                  ;
+
+bloque            : '{' bloqueItem* '}'
+                  ;
+
+bloqueItem        : sentenciaSelector
+                  | sentenciaIterador
+                  | sentencia
+                  ;
+
+
+
+
+/* Macros */
+macro   : '#' ID ID
+        ;
 
 
 
