@@ -31,9 +31,10 @@ sentenciaSelector : 'if' '(' (expresion | funcionCall) ')' (bloque | bloqueItem)
                   | 'if' '(' (expresion | funcionCall) ')' (bloque | bloqueItem) 'else' (bloque | bloqueItem)
                   | 'switch' '(' (expresion | funcionCall) ')' bloque
                   ;
-sentenciaIterador : 'while' '(' expresion ')' bloque
-                  | 'do' bloque 'while' '(' expresion ')' ';'
-                  | 'for' '(' expresion? ';' expresion? ';' expresion? ')' bloque
+sentenciaIterador : 'while' '(' expresion ')' (bloque | bloqueItem)
+                  | 'do' (bloque | bloqueItem) 'while' '(' expresion ')' ';'
+									| 'for' '(' ';' ';' ')' (bloque | bloqueItem)
+                  | 'for' '(' (var | asignacion | expresion ';'| funcionCall)?  (asignacion | expresion ';'| funcionCall)?  (asignacion | expresion ';'| funcionCall)?? ')' (bloque | bloqueItem)
                   ;
 sentenciaSalto    : 'goto' expresion ';'
                   | 'continue' ';'
@@ -59,13 +60,10 @@ initVar           : OPERADORASIG DIGS
 funcionDec        : ('extern'| 'static')? TIPO? id=ID '(' params? ')' {
 																																			if (funciones.contains($id.text)) {
 																																					funcionActual = funciones.indexOf($id.text) + 1;
-																																					System.out.println("EE contenida "+$id.text+" actual "+funcionActual);
 																																			} else {
 																																					llamadas.add(new ArrayList<String>());
 																																					funciones.add($id.text);
-																																					System.out.println("funciones size "+funciones.size());
 																																					funcionActual = funciones.size();
-																																					System.out.println("EE nueva "+$id.text+" actual "+funcionActual);
 																																			}
 																																			}
 									(bloque | ';')
@@ -75,7 +73,6 @@ params            : TIPO ID (',' TIPO ID)*
 args              : expresion (',' expresion)*
                   ;
 funcionCall       : id=ID {
-													 System.out.println("CALL funcionActual= "+funcionActual);
 													 llamadas.get(funcionActual-1).add($id.text);
 													}
 									'(' args? ')' ';'?
@@ -83,13 +80,16 @@ funcionCall       : id=ID {
 
 
 /* Asignacion y Expresion */
-asignacion        : ID OPERADORASIG expresion ';'
+asignacion        : ID OPERADORASIG expresion ';'?
+									| ID OPERADOR ';'?
                   ;
 expresion         : valor OPERADOREXPR expresion
+									| valor OPERADOR expresion
                   | valor
                   ;
 valor             : ID
                   | funcionCall
+									| DIG
                   | DIGS
                   | FRAC
                   | FLOAT
@@ -152,3 +152,11 @@ OPERADOREXPR          : '<' | '>'
                       | '==' | '!='
                       | '<=' | '>='
                       ;
+OPERADOR							: '&' | '&&'
+ 											| '|' | '||'
+											| '+' | '++'
+											| '-' | '--'
+											| '*' | '/'
+											| '~' | '!'
+											| '^'
+											;
