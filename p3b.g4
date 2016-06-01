@@ -2,24 +2,47 @@ grammar p3b2;
 
 @header {
 				import java.util.ArrayList;
+				import java.io.BufferedWriter;
+				import java.io.FileWriter;
+				import java.io.IOException;
 				}
 
 @parser::members {
-									ArrayList funciones = new ArrayList();
-									ArrayList<ArrayList<String>> llamadas = new ArrayList<ArrayList<String>>();
-									int funcionActual = 0;
+									private static ArrayList funciones = new ArrayList();
+									private static ArrayList<ArrayList<String>> llamadas = new ArrayList<ArrayList<String>>();
+									private static int funcionActual = 0;
+									private final static String NOMBRE_FICHERO="salida";
+
+									/**
+							     * Realiza la escritura del fichero de salida.
+							     */
+									public static void salidaFichero() {
+								        BufferedWriter bw = null;
+								        try {
+								            bw = new BufferedWriter(new FileWriter(NOMBRE_FICHERO));
+														for (int i = 0; i < funciones.size(); i++) {
+																bw.write("\nFuncion: " + funciones.get(i)+"\n");
+																bw.write("\tLlamadas a funciones: " + llamadas.get(i).size()+"\n");
+																for (int j = 0; j < llamadas.get(i).size(); j++) {
+																		bw.write("\t\t" + llamadas.get(i).get(j)+"\n");
+																}
+														}
+								        } catch (IOException ex) {
+								            System.err.println("Error al crear fichero de salida.");
+								        } finally {
+								            try {
+								                bw.close();
+								            } catch (IOException ex) {
+								                System.err.println("Error al crear fichero de salida.");
+								            }
+								        }
+								    }
 									}
 
 /* Simbolo incial de la gramatica: prog */
 prog
 @after {
-				for (int i = 0; i < funciones.size(); i++) {
-						System.out.println("\nFuncion: " + funciones.get(i));
-						System.out.println("\tLlamadas a funciones: " + llamadas.get(i).size());
-						for (int j = 0; j < llamadas.get(i).size(); j++) {
-								System.out.println("\t\t" + llamadas.get(i).get(j));
-						}
-				}
+				salidaFichero();
 			 }
 			 : (macro | var | funcionDec)*
        ;
