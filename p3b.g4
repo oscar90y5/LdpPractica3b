@@ -13,6 +13,7 @@ grammar p3b;
 									private static ArrayList<ArrayList<String>> llamadas = new ArrayList<ArrayList<String>>();
 									private static ArrayList<ArrayList<String>> variables = new ArrayList<ArrayList<String>>();
 									private static int funcionActual = 0;
+									private static boolean enFuncion = false;
 									private final static String NOMBRE_FICHERO = "salida";
 
 									/**
@@ -23,7 +24,7 @@ grammar p3b;
 												try {
 														bw = new BufferedWriter(new FileWriter(NOMBRE_FICHERO));
 														int i, j;
-														bw.write("Variables globales:\n");
+														bw.write("Variables globales: "+globVar.size()+"\n");
 														for (i = 0; i < globVar.size(); i++) {
 																bw.write("\t" + globVar.get(i)+"\n");
 														}
@@ -88,20 +89,22 @@ sentencia         : var
 
 
 /* Variables */
-var               : TIPO id=ID initVar?
+var               : tipo=TIPO id=ID initVar?
 																				{
-																					if (funcionActual == 0) {
-																							globVar.add($id.text);
+																					int pos =0;
+
+																					if (enFuncion == false) {
+																							globVar.add($id.text+" ("+$tipo.text+")");
 																					} else {
-																							variables.get(funcionActual - 1).add($id.text);
+																								variables.get(funcionActual - 1).add($id.text+" ("+$tipo.text+")");
 																					}
 																				}
 										(',' id=ID initVar?
 																				{
-																					if (funcionActual == 0) {
-																	            globVar.add($id.text);
+																					if (enFuncion == false) {
+																	            globVar.add($id.text+" ("+$tipo.text+")");
 																	        } else {
-																	            variables.get(funcionActual - 1).add($id.text);
+																	            variables.get(funcionActual - 1).add($id.text+" ("+$tipo.text+")");
 																	        }
 																				}
 										)* ';'
@@ -120,8 +123,11 @@ funcionDec        : ('extern'| 'static')? TIPO? id=ID '(' params? ')' {
 																																						funciones.add($id.text);
 																																						funcionActual = funciones.size();
 																																				}
+																																				enFuncion=true;
 																																			}
-										(bloque | ';')
+										(bloque | ';')  {
+																		 enFuncion=false;
+																		}
                 	;
 params            : TIPO ID (',' TIPO ID)*
                   ;
@@ -136,20 +142,21 @@ funcionCall       : id=ID {
 
 /* Asignacion y Expresion */
 asignacion        : ID OPERADORASIG expresion ';'?
-		  | ID OPERADOR ';'?
+		  						| ID OPERADOR ';'?
                   ;
 expresion         : valor OPERADOREXPR expresion
-		  | valor OPERADOR expresion
+		  						| valor OPERADOR expresion
                   | valor
                   ;
 valor             : ID
                   | funcionCall
-		  | DIG
+		  						| DIG
                   | DIGS
                   | FRAC
                   | FLOAT
-		  | LET
-		  | STR
+		  						| LET
+		  						| STR
+									| CHAR
                   ;
 
 /* Bloques de codigo */
@@ -189,9 +196,9 @@ LET                   :	[a-zA-Z_];
 DIG                   :	[0-9];
 FRAC                  : [.][0-9]+;
 FLOAT                 : [0-9]+([.][0-9]+)?;
-STR	       	:	[a-zA-Z_]+;
 SIGN                  :	'+' | '-';
-
+STR	       						:	[a-zA-Z_]+ ;
+CHAR									: ( [a-zA-Z_] | [0-9] );
 WS                    :	[ \t\n\r]+ -> skip;
 BCOMENT               :	'/*' .*? '*/' -> skip;
 LCOMENT               :	'//' ~[\r \n]* -> skip;
